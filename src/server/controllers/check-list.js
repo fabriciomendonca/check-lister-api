@@ -32,11 +32,30 @@ const CheckListController = {
   },
 
   update (req, res, next) {
-    
+    const id = req.params.id;
+    const name = req.body.name;
+
+    if (!ObjectID.isValid(id)) {
+      return res.status(404).send();
+    }
+
+    CheckList.findByIdAndUpdate(id, {name})
+      .then(() => CheckList.findById(id))
+      .then(data => res.send({data}))
+      .catch(next);
   },
 
   destroy (req, res, next) {
+    const id = req.params.id;
 
+    if (!ObjectID.isValid(id)) {
+      return res.status(404).send();
+    }
+
+    CheckList.findByIdAndRemove(id)
+      .then(() => CheckList.findById(id))
+      .then(data => res.send({data}))
+      .catch(next);
   }
 };
 

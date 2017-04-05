@@ -21,14 +21,14 @@ const list = [
 ];
 
 beforeEach(done => {
-  CheckList.remove({}).then(() => done());
+  CheckList.remove({})
+    .then(() => {
+      return CheckList.insertMany(list);
+    })
+    .then(() => done());
 });
 
 describe('Test GET /check-lists', () => {
-  beforeEach((done) => {
-    CheckList.insertMany(list).then(() => done());
-  });
-
   it('should return the list with two documents', done => {
     request(app)
       .get('/check-lists')
@@ -72,9 +72,43 @@ describe('Test POST /check-lists', () => {
         }
 
         CheckList.find({}).then(res => {
-          expect(res.length).toBe(1);
+          expect(res.length).toBe(list.length + 1);
           done();
         }).catch(err => done(err));
+      });
+  });
+});
+
+describe('Test PATCH /check-lists/:id', () => {
+  it('should update the Second tes checklist item', done => {
+    const name = 'Second test edited';
+    request(app)
+      .patch(`/check-lists/${list[1]._id}`)
+      .send({name})
+      .expect(200)
+      .expect(res => {
+        expect(res.body.data.name).toBe(name);
+      })
+      .end(done);
+  });
+});
+
+describe('Test DELETE /check-lists/:id', () => {
+  it('should delete the First checklist test item', done => {
+    request(app)
+      .delete(`/check-lists/${list[0]._id}`)
+      .expect(200)
+      .end((err, res) => {
+        if (err) {
+          return done(err);
+        }
+
+        CheckList.find({})
+          .then(data => {
+            expect(data.length).toBe(list.length - 1);
+            done();
+          })
+          .catch(err => done(err))
       });
   });
 });
