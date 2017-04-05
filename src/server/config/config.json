@@ -1,0 +1,12 @@
+{
+  "development": {
+    "PORT": 3050,
+    "MONGODB_URI": "mongodb://localhost:27017/check-list-app",
+    "JWT_SECRET": "kashduiwahdka39384kndca9j123"
+  },
+  "test": {
+    "PORT": 3050,
+    "MONGODB_URI": "mongodb://localhost:27017/check-list-app-test",
+    "JWT_SECRET": "alskjda983jlkajsd983jnanas,d2"
+  }
+}

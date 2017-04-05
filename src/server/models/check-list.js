@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const CheckListItem = require('./check-list-item');
 
 const { Schema } = mongoose;
 

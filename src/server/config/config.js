@@ -1,11 +1,13 @@
+
 const env = process.env.NODE_ENV || 'development';
 
-if (process.env.NODE_ENV === 'test') {
-  process.env.MONGODB_URI = 'mongodb://localhost:27017/check-list-app-test';
-} else {
-  process.env.MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/check-list-app';
-}
+if (env === 'development' || env === 'test') {
+  const config = require('./config.json');
+  const envConfig = config[env];
 
-process.env.PORT = process.env.PORT || 3000;
+  Object.keys(envConfig).forEach(key => {
+    process.env[key] = envConfig[key];
+  });
+}
 
 module.exports = { env };
