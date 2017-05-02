@@ -13,6 +13,14 @@ const CheckList = mongoose.model('check-list', new Schema({
   createdAt: {
     type: Number,
     default: 0
+  },
+  completedAt: {
+    type: Number,
+    default: 0
+  },
+  _parent: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'check-list'
   }
 }));
 

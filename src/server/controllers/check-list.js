@@ -7,6 +7,10 @@ const CheckListController = {
     var chk = new CheckList({
       name: req.body.name
     });
+    
+    if (req.body.parent) {
+      chk._parent = req.body.parent;
+    }
 
     chk.save().then((data) => {
       res.send({ data });

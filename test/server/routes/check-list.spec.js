@@ -10,12 +10,12 @@ const date = new Date().getTime();
 const list = [
   {
     _id: new ObjectID(),
-    name: 'First test checklist',
+    name: 'First test check list',
     createdAt: date
   },
   {
     _id: new ObjectID(),
-    name: 'Second test checklist',
+    name: 'Second test check list',
     createdAt: date
   }
 ];
@@ -35,12 +35,12 @@ describe('Test GET /check-lists', () => {
       .expect(200)
       .expect(res => {
         expect(res.body.data.length).toBe(2);
-        expect(res.body.data[0].name).toBe('First test checklist');
+        expect(res.body.data[0].name).toBe('First test check list');
       })
       .end(done);
   });
 
-  it('should get the Second test checklist', done => {
+  it('should get the Second test check list', done => {
     const _id = list[1]._id;
     
     request(app)
@@ -54,7 +54,7 @@ describe('Test GET /check-lists', () => {
 });
 
 describe('Test POST /check-lists', () => {
-  it('should create a new check-list', done => {
+  it('should create a new check list', done => {
     const chk = {
       name: 'New check list'
     };
@@ -77,10 +77,36 @@ describe('Test POST /check-lists', () => {
         }).catch(err => done(err));
       });
   });
+
+  it('should create a new child check list', done => {
+    const chk = {
+      name: 'New child check list',
+      parent: list[1]._id
+    };
+
+    request(app)
+      .post('/check-lists')
+      .send(chk)
+      .expect(200)
+      .expect(res => {
+        expect(res.body.data._id).toExist();
+      })
+      .end((err, res) => {
+        if (err) {
+          return done(err);
+        }
+
+        CheckList.findById(res.body.data._id).then(item => {
+          expect(item.name).toBe(chk.name);
+          expect(item._parent).toEqual(list[1]._id);
+          done();
+        }).catch(err => done(err));
+      });
+  });
 });
 
 describe('Test PATCH /check-lists/:id', () => {
-  it('should update the Second tes checklist item', done => {
+  it('should update the Second test check list item', done => {
     const name = 'Second test edited';
     request(app)
       .patch(`/check-lists/${list[1]._id}`)
@@ -94,7 +120,7 @@ describe('Test PATCH /check-lists/:id', () => {
 });
 
 describe('Test DELETE /check-lists/:id', () => {
-  it('should delete the First checklist test item', done => {
+  it('should delete the First check list test item', done => {
     request(app)
       .delete(`/check-lists/${list[0]._id}`)
       .expect(200)
