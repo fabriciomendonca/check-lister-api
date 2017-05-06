@@ -8,6 +8,11 @@ const {checkListRoutes} = require('./routes/check-list');
 
 const app = express();
 
+app.use(function(req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+});
 app.use(bodyParser.json());
 
 // Define /check-list routes
