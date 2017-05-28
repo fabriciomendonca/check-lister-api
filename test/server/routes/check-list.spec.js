@@ -1,10 +1,12 @@
 const expect = require('expect');
 const request = require('supertest');
 const { ObjectID } = require('mongodb');
+const jwt = require('jwt-simple');
 
 
 const { app } = require('../../../src/server/server');
 const CheckList = require('../../../src/server/models/check-list');
+const User = require('../../../src/server/models/user');
 
 const date = new Date().getTime();
 const list = [
@@ -20,18 +22,35 @@ const list = [
   }
 ];
 
+let user = {};
 beforeEach(done => {
   CheckList.remove({})
     .then(() => {
       return CheckList.insertMany(list);
     })
-    .then(() => done());
+    .then(() => {
+      return User.remove({})
+    })
+    .then(() =>{
+      const doc = new User({
+        email: 'test1@test.com',
+        password: '123abc'
+      });
+      doc.save()
+        .then(data => {
+          user.email = data.email;
+          user.token = jwt.encode({sub: data._id, iat: new Date().getTime()}, process.env.JWT_SECRET);
+          done();
+        })
+        .catch(done);
+    });
 });
 
 describe('Test GET /check-lists', () => {
   it('should return the list with two documents', done => {
     request(app)
       .get('/check-lists')
+      .set('authorization', user.token)
       .expect(200)
       .expect(res => {
         expect(res.body.data.length).toBe(2);
@@ -45,6 +64,7 @@ describe('Test GET /check-lists', () => {
     
     request(app)
       .get(`/check-lists/${_id.toHexString()}`)
+      .set('authorization', user.token)
       .expect(200)
       .expect(res => {
         expect(res.body.data.name).toBe(list[1].name);
@@ -61,6 +81,7 @@ describe('Test POST /check-lists', () => {
 
     request(app)
       .post('/check-lists')
+      .set('authorization', user.token)
       .send(chk)
       .expect(200)
       .expect(res => {
@@ -86,6 +107,7 @@ describe('Test POST /check-lists', () => {
 
     request(app)
       .post('/check-lists')
+      .set('authorization', user.token)
       .send(chk)
       .expect(200)
       .expect(res => {
@@ -110,6 +132,7 @@ describe('Test PATCH /check-lists/:id', () => {
     const name = 'Second test edited';
     request(app)
       .patch(`/check-lists/${list[1]._id}`)
+      .set('authorization', user.token)
       .send({name})
       .expect(200)
       .expect(res => {
@@ -123,6 +146,7 @@ describe('Test DELETE /check-lists/:id', () => {
   it('should delete the First check list test item', done => {
     request(app)
       .delete(`/check-lists/${list[0]._id}`)
+      .set('authorization', user.token)
       .expect(200)
       .end((err, res) => {
         if (err) {

@@ -10,10 +10,15 @@
     "start": "node src/server/server.js"
   },
   "dependencies": {
+    "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.17.1",
+    "cors": "^2.8.3",
     "express": "^4.15.2",
+    "jwt-simple": "^0.5.1",
     "mongodb": "^2.2.25",
-    "mongoose": "^4.9.2"
+    "mongoose": "^4.9.2",
+    "passport": "^0.3.2",
+    "passport-jwt": "^2.2.1"
   },
   "devDependencies": {
     "expect": "^1.20.2",
