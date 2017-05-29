@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const CheckListItem = require('./check-list-item');
 
 const { Schema } = mongoose;
 
@@ -18,10 +17,14 @@ const CheckList = mongoose.model('check-list', new Schema({
     type: Number,
     default: 0
   },
-  _parent: {
+  _createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'user'
+  },
+  tasks: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'check-list'
-  }
+  }]
 }));
 
 module.exports = CheckList;

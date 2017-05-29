@@ -9,20 +9,24 @@ const CheckList = require('../../../src/server/models/check-list');
 const User = require('../../../src/server/models/user');
 
 const date = new Date().getTime();
+const userId = new ObjectID();
+let user = {};
 const list = [
   {
     _id: new ObjectID(),
     name: 'First test check list',
-    createdAt: date
+    createdAt: date,
+    _createdBy: userId
   },
   {
     _id: new ObjectID(),
     name: 'Second test check list',
-    createdAt: date
+    createdAt: date,
+    _createdBy: userId
   }
 ];
 
-let user = {};
+
 beforeEach(done => {
   CheckList.remove({})
     .then(() => {
@@ -33,6 +37,7 @@ beforeEach(done => {
     })
     .then(() =>{
       const doc = new User({
+        _id: userId,
         email: 'test1@test.com',
         password: '123abc'
       });
@@ -101,26 +106,25 @@ describe('Test POST /check-lists', () => {
 
   it('should create a new child check list', done => {
     const chk = {
-      name: 'New child check list',
-      parent: list[1]._id
+      name: 'New child check list'
     };
 
     request(app)
-      .post('/check-lists')
+      .post(`/check-lists/${list[1]._id.toHexString()}`)
       .set('authorization', user.token)
       .send(chk)
       .expect(200)
       .expect(res => {
         expect(res.body.data._id).toExist();
+        expect(res.body.data.name).toEqual(chk.name);
       })
       .end((err, res) => {
         if (err) {
           return done(err);
         }
 
-        CheckList.findById(res.body.data._id).then(item => {
-          expect(item.name).toBe(chk.name);
-          expect(item._parent).toEqual(list[1]._id);
+        CheckList.findById(list[1]._id).then(item => {
+          expect(item.tasks.length).toEqual(1);
           done();
         }).catch(err => done(err));
       });
