@@ -115,8 +115,8 @@ describe('Test POST /check-lists', () => {
       .send(chk)
       .expect(200)
       .expect(res => {
-        expect(res.body.data._id).toExist();
-        expect(res.body.data.name).toEqual(chk.name);
+        expect(res.body._id).toExist();
+        expect(res.body.name).toEqual(chk.name);
       })
       .end((err, res) => {
         if (err) {
@@ -140,7 +140,7 @@ describe('Test PATCH /check-lists/:id', () => {
       .send({name})
       .expect(200)
       .expect(res => {
-        expect(res.body.data.name).toBe(name);
+        expect(res.body.name).toBe(name);
       })
       .end(done);
   });

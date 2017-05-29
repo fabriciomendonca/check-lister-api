@@ -21,6 +21,10 @@ const CheckList = mongoose.model('check-list', new Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'user'
   },
+  isRoot: {
+    type: Boolean,
+    default: true
+  },
   tasks: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'check-list'

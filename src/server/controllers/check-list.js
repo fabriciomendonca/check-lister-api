@@ -19,7 +19,8 @@ const CheckListController = {
     var chk = new CheckList({
       name: req.body.name,
       createdAt: new Date().getTime(),
-      _createdBy: req.user._id
+      _createdBy: req.user._id,
+      isRoot: false
     });
 
     const { id } = req.params;
@@ -37,7 +38,7 @@ const CheckListController = {
       return Promise.all([data.save(), chk.save()]);
     })
     .then(responses => {
-      res.send({ data: responses[1] });
+      res.send(responses[1]);
     })
     .catch(next);
 
@@ -50,33 +51,59 @@ const CheckListController = {
       return res.status(404).send();
     }
 
-    CheckList.findById(id)
+    CheckList.findOne({ _id: id, _createdBy: req.user._id})
       .populate({
-        path: 'tasks'
+        path: 'tasks',
+        options: {
+          sort: {
+            createdAt: -1
+          }
+        }
       })
       .then((data) => {
+        if (!data) {
+          res.status(404).send();
+        }
         res.send({ data });
       })
       .catch(next);
   },
 
   getList (req, res, next) {
-    CheckList.find({}).then((data) => {
-      res.send({ data });
-    }).catch(next);
+    CheckList.find({
+      _createdBy: req.user._id,
+      isRoot: true
+    })
+      .populate({
+        path: 'tasks'
+      })
+      .sort({
+        createdAt: -1
+      })
+      .then((data) => {
+        res.send({ data });
+      }).catch(next);
   },
 
   update (req, res, next) {
     const id = req.params.id;
-    const name = req.body.name;
 
     if (!ObjectID.isValid(id)) {
       return res.status(404).send();
     }
 
-    CheckList.findByIdAndUpdate(id, {name})
-      .then(() => CheckList.findById(id))
-      .then(data => res.send({data}))
+    const body = {};
+    Object.keys(req.body).forEach(key => {
+      if (key !== '_id') {
+        body[key] = req.body[key];
+      }
+    });
+
+    CheckList.findByIdAndUpdate(id, body)
+      .then(doc => {
+        return CheckList.findById(id)
+      })
+      .then(data => res.send(data))
       .catch(next);
   },
 

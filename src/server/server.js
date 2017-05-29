@@ -4,12 +4,14 @@ const express = require('express');
 const mongoose = require('./db/mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const helmet = require('helmet');
 
 const {checkListRoutes} = require('./routes/check-list');
 const {userRoutes} = require('./routes/user');
 
 const app = express();
 
+app.use(helmet());
 app.use(cors());
 app.use(bodyParser.json());
 
