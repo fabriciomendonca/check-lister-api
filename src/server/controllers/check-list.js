@@ -99,8 +99,12 @@ const CheckListController = {
       }
     });
 
-    CheckList.findByIdAndUpdate(id, body)
+    CheckList.findOneAndUpdate({_id: id, _createdBy: req.user._id}, body)
       .then(doc => {
+        if (!doc) {
+          res.status(404).send();
+        }
+
         return CheckList.findById(id)
       })
       .then(data => res.send(data))
